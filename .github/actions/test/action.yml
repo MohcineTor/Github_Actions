@@ -1,0 +1,10 @@
+name: test action 
+description: 'tes'
+runs:
+  using: 'composite'
+  steps:
+    - name: test Control
+      run: |
+        echo ${{ env.CONTEXT_ID }}
+        echo ${{ env.PLATFORM_ID }}
+      shell: bash
