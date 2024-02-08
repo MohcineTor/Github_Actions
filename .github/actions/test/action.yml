@@ -9,7 +9,8 @@ runs:
   steps:
     - name: test Control
       run: |
-        for platform in ${{ inputs.platforms }}; do
-         echo $platform
+        IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
+        for platform in "${platforms_array[@]}"; do
+          echo "$platform"
         done
       shell: bash
