@@ -5,15 +5,15 @@ inputs:
     description: 'Working-dir folder'
     required: true
     default: 'personal'
-  simulator_image_docker_orlistofImage:
+  simulator_image_docker_or_listofImage:
     description: 'simulator_image_docker_dev'
     required: true
     default: ''
-  simulator_version_orlistofversion:
+  simulator_version_or_listofversion:
     description: 'simulator_version_dev'
     required: true
     default: ''
-  platforms:
+  platform_or_listofplatforms:
     description: 'List of platforms to initialize'
     required: true
 runs:
@@ -22,9 +22,9 @@ runs:
     - name: Pull ACR simulator image
       run: |
         cd ${{ inputs.folder }}
-        IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
-        IFS=',' read -ra list_of_Image<<< "${{ inputs.simulator_image_docker_orlistofImage }}"
-        IFS=',' read -ra list_of_version<<< "${{ inputs.simulator_version_orlistofversion }}"
+        IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofplatforms }}"
+        IFS=',' read -ra list_of_Image <<< "${{ inputs.simulator_image_docker_orlistofImage }}"
+        IFS=',' read -ra list_of_version <<< "${{ inputs.simulator_version_orlistofversion }}"
         
         length_platforms=${#platforms_array[@]}
         length_images=${#list_of_Image[@]}
@@ -47,8 +47,7 @@ runs:
                                 IFS=', ' read -r -a version_array <<< "$version_line"
                                 # Parcourir chaque version et supprimer le ']' à la fin s'il existe
                                 for version in "${version_array[@]}"; do
-                                    version=$(echo "$version" | sed 's/[]]//')
-                                    version=$(echo "$version" | sed "s/^'//" | sed "s/'$//")
+                                    version=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
                                     versions+=("$version")
                                 done
                                 repositories+=("$repository")

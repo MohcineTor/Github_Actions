@@ -30,7 +30,7 @@ runs:
         else
             for platform in "${platforms_array[@]}"; do
                 if [ "$platform" == "${{ env.PLATFORM_ID }}" ]; then
-                    echo "$platform"
+                    echo "platform : $platform"
                     LOG_FILE=$logs
                     repositories=()
                     versions=()
