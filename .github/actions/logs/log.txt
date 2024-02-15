@@ -1,0 +1,9 @@
+[2024/02/15 - 16:52:13] INFO     list - Starting                                                                                                                                                   decorators.py:75
+[2024/02/15 - 16:52:13] INFO     Getting repositories stored in registry phoenixperf.azurecr.io                                                                                                          list.py:28
+[2024/02/15 - 16:52:18] INFO     Respositories from phoenixperf.azurecr.io:                                                                                                                              list.py:40
+                                  • asset_simulators: ['ASSET_v14.2.0_2023-05-30-10h25-06Z']                                                                                                                       
+                                  • brewery_simulator: ['1.0.0', '0.0.26']                                                                                                                                         
+                                  • mtor: ['ASSET_14_2024-02-05-13h59_perfZ']                                                                                                                                      
+                                  • simulator_simulator: ['ASSET_v14.2.1_2023-10-26-15h23-27Z', 'ASSET_14_2024-02-08-14h07_', 'ASSET_14.2.2']                                                                      
+                                  • supplychain_simulator: ['latest', '5.2.2', '5.1.0-onlinestats2', '5.0.1-sa1by1', '5.0.1', '0.4.110', '0.4.108-fastload', '0.0.101']                                            
+[2024/02/15 - 16:52:18] INFO     list - Total elapsed time: 0:00:05.057543                                                                                                                         decorators.py:80
