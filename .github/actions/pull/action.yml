@@ -1,10 +1,6 @@
 name: Pull Image from Azure Container Registry
 description: Pull image from Azure Container Registry
 inputs:
-  folder:
-    description: 'Working-dir folder'
-    required: true
-    default: 'personal'
   simulator_image_docker_orlistofImage:
     description: 'simulator_image_docker_dev'
     required: true
@@ -23,7 +19,6 @@ runs:
       env:
         logs: ${{ github.action_path }}/../../../logs/log.txt
       run: |
-        cd ${{ inputs.folder }}
         IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
         IFS=',' read -ra list_of_Image<<< "${{ inputs.simulator_image_docker_orlistofImage }}"
         IFS=',' read -ra list_of_version<<< "${{ inputs.simulator_version_orlistofversion }}"
