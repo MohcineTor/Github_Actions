@@ -22,12 +22,10 @@ runs:
         IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
         IFS=',' read -ra list_of_Image<<< "${{ inputs.simulator_image_docker_orlistofImage }}"
         IFS=',' read -ra list_of_version<<< "${{ inputs.simulator_version_orlistofversion }}"
-        
         length_platforms=${#platforms_array[@]}
         length_images=${#list_of_Image[@]}
         length_versions=${#list_of_version[@]}
-
-        if [ $length_platforms -eq 1 ] && [ $length_images -eq 1 ] && [ $length_versions -eq 1 ];
+        if [ $length_platforms -eq 1 ] && [ $length_images -eq 1 ] && [ $length_versions -eq 1 ]; then
             echo "one platforme $platform"
         else
             for platform in "${platforms_array[@]}"; do
