@@ -38,18 +38,18 @@ runs:
                                 repository=$(echo "$line" | cut -d ":" -f 1 | sed 's/•//g' | tr -d '[:space:]')
                                 version_line=$(echo "$line" | cut -d ":" -f 2 | sed 's/^[[:space:]]*//' | sed "s/^\['//" | sed "s/^\']//")
                                 for Image in "${list_of_Image[@]}"; do
-                                  if[ "$Image == $repository"]; then 
+                                    if [ "$Image" == "$repository" ]; then
                                         IFS=', ' read -r -a version_array <<< "$version_line"
                                         for version in "${version_array[@]}"; do
                                             versions=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
                                             for v in "${list_of_version[@]}"; do
-                                                if[ "$v == $versions" ]; then 
+                                                if [ "$v" == "$versions" ]; then
                                                     echo "pull images: $Image:$v in $platform"
                                                 fi
                                             done
                                         done
-                                  fi
-                                done 
+                                    fi
+                                done
                             fi
                         done < "$LOG_FILE"
                     }
