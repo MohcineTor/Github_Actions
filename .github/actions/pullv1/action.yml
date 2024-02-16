@@ -43,7 +43,7 @@ runs:
                                         for version in "${version_array[@]}"; do
                                             versions=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
                                             for v in "${list_of_version[@]}"; do
-                                                if[ "$v == $versions"]; then 
+                                                if[ "$v == $versions" ]; then 
                                                     echo "pull images: $Image:$v in $platform"
                                                 fi
                                             done
