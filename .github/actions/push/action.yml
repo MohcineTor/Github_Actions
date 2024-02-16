@@ -17,7 +17,7 @@ runs:
   steps:
     - name: Pull ACR simulator image
       env:
-        logs: ${{ github.action_path }}/../logs/log.txt
+        logs: ${{ github.action_path }}/../logs/dockerlogs.txt
       run: |
         IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
         IFS=',' read -ra list_of_Image<<< "${{ inputs.simulator_image_docker_orlistofImage }}"
@@ -26,38 +26,30 @@ runs:
         length_images=${#list_of_Image[@]}
         length_versions=${#list_of_version[@]}
         if [ $length_platforms -eq 1 ] && [ $length_images -eq 1 ] && [ $length_versions -eq 1 ]; then
-            echo "one platforme $platform"
+            echo "push to one platforme $platform"
         else
             for platform in "${platforms_array[@]}"; do
-                if [ "$platform" == "${{ env.PLATFORM_ID }}" ]; then
-                    echo "here is one platform : $platform"
-                    LOG_FILE=$logs
+                if [ "$platform" != "${{ env.PLATFORM_ID }}" ]; then
+                    echo "here is platform : $platform"
+                    LOG_FILE="dockerlogs.txt"
                     repositories=()
-                    versions=()
-                    extract_repositories_and_versions() {
+                    tags=()
+                    extract_repositories_and_tags() {
                         while IFS= read -r line; do
-                            if [[ $line == *"•"* ]]; then
-                                repository=$(echo "$line" | cut -d ":" -f 1 | sed 's/•//g' | tr -d '[:space:]')
-                                version_line=$(echo "$line" | cut -d ":" -f 2 | sed 's/^[[:space:]]*//' | sed "s/^\['//" | sed "s/^\']//")
-                                IFS=', ' read -r -a version_array <<< "$version_line"
-                                # Parcourir chaque version et supprimer le ']' à la fin s'il existe
-                                for version in "${version_array[@]}"; do
-                                    version=$(echo "$version" | sed 's/[]]//')
-                                    version=$(echo "$version" | sed "s/^'//" | sed "s/'$//")
-                                    versions+=("$version")
-                                done
-                                repositories+=("$repository")
-                            fi
+                            repository=$(echo "$line" | awk '{print $1}')
+                            tag=$(echo "$line" | awk '{print $2}')
+                            repositories+=("$repository")
+                            tags+=("$tag")
                         done < "$LOG_FILE"
                     }
-                    extract_repositories_and_versions
+                    eextract_repositories_and_tags
                     for i in "${repositories[@]}"; do
                         for j in "${list_of_Image[@]}"; do
                             if [ "$i" == "$j" ]; then
-                                for k in "${versions[@]}"; do
+                                for k in "${tags[@]}"; do
                                     for l in "${list_of_version[@]}"; do
                                         if [ "$k" == "$l" ]; then
-                                            echo "pull images: $i:$k in $platform"
+                                            echo "push images: $i:$k in $platform"
                                         fi
                                     done
                                 done
