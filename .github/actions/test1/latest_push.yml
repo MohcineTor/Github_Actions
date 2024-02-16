@@ -1,0 +1,64 @@
+name: Push Image from Azure Container Registry
+description: push image from Azure Container Registry
+inputs:
+  simulator_image_docker_orlistofImage:
+    description: 'simulator_image_docker_dev'
+    required: true
+    default: ''
+  simulator_version_orlistofversion:
+    description: 'simulator_version_dev'
+    required: true
+    default: ''
+  platforms:
+    description: 'List of platforms to initialize'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: push ACR simulator image
+      env:
+        logs: ${{ github.action_path }}/../logs/dockerlogs.txt
+      run: |
+        IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
+        IFS=',' read -ra list_of_Image<<< "${{ inputs.simulator_image_docker_orlistofImage }}"
+        IFS=',' read -ra list_of_version<<< "${{ inputs.simulator_version_orlistofversion }}"
+        length_platforms=${#platforms_array[@]}
+        length_images=${#list_of_Image[@]}
+        length_versions=${#list_of_version[@]}
+        if [ $length_platforms -eq 1 ] && [ $length_images -eq 1 ] && [ $length_versions -eq 1 ]; then
+            echo "push to one platforme $platform"
+        else
+            for platform in "${platforms_array[@]}"; do
+                if [ "$platform" != "${{ env.PLATFORM_ID }}" ]; then
+                    docker images > ${PWD}/dockerimageslogs.txt
+                    LOG_FILE=${PWD}/dockerimageslogs.txt
+                    repositories=()
+                    tags=()
+                    extract_repositories_and_tags() {
+                        while IFS= read -r line; do
+                            repository=$(echo "$line" | awk '{print $1}')
+                            tag=$(echo "$line" | awk '{print $2}')
+                            if ! [[ " ${repositories[@]} " =~ " $repository " ]]; then
+                                repositories+=("$repository")
+                            fi
+                            tags+=("$tag")
+                        done < "$LOG_FILE"
+                    }
+                    extract_repositories_and_tags
+                    for i in "${repositories[@]}"; do
+                        for j in "${list_of_Image[@]}"; do
+                            if [ "$i" == "$j" ]; then
+                                for k in "${tags[@]}"; do
+                                    for l in "${list_of_version[@]}"; do
+                                        if [ "$k" == "$l" ]; then
+                                            babylon azure acr push -c ${{ env.CONTEXT_ID }} -p $platform --image $i:$k
+                                        fi
+                                    done
+                                done
+                            fi
+                        done
+                    done
+                fi
+            done
+        fi
+      shell: bash
