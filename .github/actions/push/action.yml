@@ -1,5 +1,5 @@
-name: Pull Image from Azure Container Registry
-description: Pull image from Azure Container Registry
+name: Push Image from Azure Container Registry
+description: push image from Azure Container Registry
 inputs:
   simulator_image_docker_orlistofImage:
     description: 'simulator_image_docker_dev'
@@ -15,7 +15,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Pull ACR simulator image
+    - name: push ACR simulator image
       env:
         logs: ${{ github.action_path }}/../logs/dockerlogs.txt
       run: |
