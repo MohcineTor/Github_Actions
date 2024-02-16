@@ -42,7 +42,7 @@ runs:
                             tags+=("$tag")
                         done < "$LOG_FILE"
                     }
-                    eextract_repositories_and_tags
+                    extract_repositories_and_tags
                     for i in "${repositories[@]}"; do
                         for j in "${list_of_Image[@]}"; do
                             if [ "$i" == "$j" ]; then
