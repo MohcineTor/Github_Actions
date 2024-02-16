@@ -31,7 +31,7 @@ runs:
             for platform in "${platforms_array[@]}"; do
                 if [ "$platform" != "${{ env.PLATFORM_ID }}" ]; then
                     echo "here is platform : $platform"
-                    LOG_FILE="dockerlogs.txt"
+                    LOG_FILE=$logs
                     repositories=()
                     tags=()
                     extract_repositories_and_tags() {
