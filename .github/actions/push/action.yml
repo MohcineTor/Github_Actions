@@ -38,7 +38,9 @@ runs:
                         while IFS= read -r line; do
                             repository=$(echo "$line" | awk '{print $1}')
                             tag=$(echo "$line" | awk '{print $2}')
-                            repositories+=("$repository")
+                            if ! [[ " ${repositories[@]} " =~ " $repository " ]]; then
+                                repositories+=("$repository")
+                            fi
                             tags+=("$tag")
                         done < "$LOG_FILE"
                     }
