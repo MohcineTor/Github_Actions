@@ -16,8 +16,6 @@ runs:
   using: "composite"
   steps:
     - name: Pull ACR simulator image
-      env:
-        logs: ${{ github.action_path }}/../logs/log.txt
       run: |
         IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
         IFS=',' read -ra list_of_Image <<< "${{ inputs.simulator_image_docker_orlistofImage }}"
@@ -30,6 +28,8 @@ runs:
         else
             for platform in "${platforms_array[@]}"; do
                 if [ "$platform" != "${{ env.PLATFORM_ID }}" ]; then
+                    docker images > ${PWD}/dockerimageslogs.txt
+                    LOG_FILE=${PWD}/dockerimageslogs.txt
                     repositories=()
                     tags=()
                     extract_repositories_and_tags() {
