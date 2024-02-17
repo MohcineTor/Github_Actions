@@ -1,43 +1,43 @@
-name: Push Image from Azure Container Registry
-description: Push image from Azure Container Registry
+name: Push Image to Azure Container Registry
+description: Push image to Azure Container Registry
 inputs:
-  simulator_image_docker_orlistofImage:
-    description: 'simulator_image_docker_dev'
+  simulator_image_docker_or_listofImages:
+    description: 'User should input either a Docker image of the simulator or a list of images Ex:"simulator_simulator, asset_simulators ..."'
     required: true
     default: ''
-  simulator_version_orlistofversion:
-    description: 'simulator_version_dev'
+  simulator_version_or_listofVersions:
+    description: 'User should input either the version of the simulator or a list of versions Ex:"ASSET_v14.2.1, ASSET_v15.0.1 ..."'
     required: true
     default: ''
-  platforms:
-    description: 'List of platforms to initialize'
+  platform_or_listofPlatforms:
+    description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
     required: true
 runs:
   using: "composite"
   steps:
-    - name: Pull ACR simulator image
+    - name: Push to ACR simulator image
       run: |
         IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
-        IFS=',' read -ra list_of_Image <<< "${{ inputs.simulator_image_docker_orlistofImage }}"
-        IFS=',' read -ra list_of_version <<< "${{ inputs.simulator_version_orlistofversion }}"
+        IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
+        IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_listofVersions }}"
+
         length_platforms=${#platforms_array[@]}
-        length_images=${#list_of_Image[@]}
-        length_versions=${#list_of_version[@]}
-        if [ $length_platforms -eq 1 ] && [ $length_images -eq 1 ] && [ $length_versions -eq 1 ]; then
-            echo "one platforme $platform"
+        length_list_images_simulator=${#list_of_images_simulator[@]}
+        length_versions_simulator=${#list_of_version_simulator[@]}
+
+        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ]; then
+            echo "Push images_simulator: $list_of_images_simulator:$list_of_version_simulator in $platforms_array"
         else
             for platform in "${platforms_array[@]}"; do
                 if [ "$platform" != "${{ env.PLATFORM_ID }}" ]; then
-                    docker images > ${PWD}/dockerimageslogs.txt
-                    LOG_FILE=${PWD}/dockerimageslogs.txt
-                    repositories=()
-                    tags=()
+                    docker images > ${PWD}/docker_images_logs.txt
+                    LOG_FILE=${PWD}/docker_images_logs.txt
                     extract_repositories_and_tags() {
                         while IFS= read -r line; do
                             repository=$(echo "$line" | awk '{print $1}')
                             tag=$(echo "$line" | awk '{print $2}')
-                            for image in "${list_of_Image[@]}"; do
-                                for verison in "${list_of_version[@]}"; do
+                            for image in "${list_of_images_simulator[@]}"; do
+                                for verison in "${list_of_version_simulator[@]}"; do
                                     cleaned_image=$(echo "$image" | sed 's/ *//g')
                                     cleaned_version=$(echo "$verison" | sed 's/ *//g')
                                     if [ "$repository:$tag" == "$cleaned_image:$cleaned_version" ]; then

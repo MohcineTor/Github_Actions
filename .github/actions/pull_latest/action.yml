@@ -1,54 +1,55 @@
 name: Pull Image from Azure Container Registry
 description: Pull image from Azure Container Registry
 inputs:
-  simulator_image_docker_orlistofImage:
-    description: 'simulator_image_docker_dev'
+  simulator_image_docker_or_listofImages:
+    description: 'User should input either a Docker image of the simulator or a list of images Ex:"simulator_simulator, asset_simulators ..."'
     required: true
     default: ''
-  simulator_version_orlistofversion:
-    description: 'simulator_version_dev'
+  simulator_version_or_listofVersions:
+    description: 'User should input either the version of the simulator or a list of versions Ex:"ASSET_v14.2.1, ASSET_v15.0.1 ..."'
     required: true
     default: ''
-  platforms:
-    description: 'List of platforms to initialize'
+  platform_or_listofPlatforms:
+    description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
     required: true
 runs:
   using: "composite"
   steps:
-    - name: Pull ACR simulator image
+    - name: Pull from ACR simulator image
       env:
         logs: ${{ github.action_path }}/../logs/log.txt
       run: |
         IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
-        IFS=',' read -ra list_of_Image <<< "${{ inputs.simulator_image_docker_orlistofImage }}"
-        IFS=',' read -ra list_of_version <<< "${{ inputs.simulator_version_orlistofversion }}"
+        IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
+        IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_listofVersions }}"
+
         length_platforms=${#platforms_array[@]}
-        length_images=${#list_of_Image[@]}
-        length_versions=${#list_of_version[@]}
-        if [ $length_platforms -eq 1 ] && [ $length_images -eq 1 ] && [ $length_versions -eq 1 ]; then
-            echo "one platforme $platform"
+        length_list_images_simulator=${#list_of_images_simulator[@]}
+        length_versions_simulator=${#list_of_version_simulator[@]}
+
+        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ]; then
+            echo "pull images_simulator: $list_of_images_simulator:$list_of_version_simulator in $platforms_array"
         else
             for platform in "${platforms_array[@]}"; do
                 if [ "$platform" == "${{ env.PLATFORM_ID }}" ]; then
-                    echo "here is one platform : $platform"
                     LOG_FILE=$logs
                     extract_repositories_and_versions() {
                         while IFS= read -r line; do
                             if [[ $line == *"•"* ]]; then
                                 repository=$(echo "$line" | cut -d ":" -f 1 | sed 's/•//g' | tr -d '[:space:]')
-                                version_line=$(echo "$line" | cut -d ":" -f 2 | sed 's/^[[:space:]]*//' | sed "s/^\['//" | sed "s/^\']//")
-                                for Image in "${list_of_Image[@]}"; do
-                                    cleaned_image=$(echo "$Image" | sed 's/ *//g')
+                                tag=$(echo "$line" | cut -d ":" -f 2 | sed 's/^[[:space:]]*//' | sed "s/^\['//" | sed "s/^\']//")
+                                for image in "${list_of_images_simulator[@]}"; do
+                                    cleaned_image=$(echo "$image" | sed 's/ *//g')
                                     if [ "$cleaned_image" == "$repository" ]; then
-                                        IFS=', ' read -r -a version_array <<< "$version_line"
-                                        for version in "${version_array[@]}"; do
-                                            versions=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
-                                            for v in "${list_of_version[@]}"; do
-                                                cleaned_version=$(echo "$v" | sed 's/ *//g')
-                                                if [ "$cleaned_version" == "$versions" ]; then
-                                                  echo "pull images: $cleaned_image:$v in $platform"
-                                                  echo "pull nginx"
-                                                  docker pull nginx
+                                        IFS=', ' read -r -a tag_array <<< "$tag"
+                                        for version in "${tag_array[@]}"; do
+                                            tag_log=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
+                                            for tag_user in "${list_of_version_simulator[@]}"; do
+                                                cleaned_tag=$(echo "$tag_user" | sed 's/ *//g')
+                                                if [ "$cleaned_tag" == "$tag_log" ]; then
+                                                  echo "pull images_simulator: $cleaned_image:$cleaned_tag in $platform"
+                                                  echo "pull nginx images ...."
+                                                  docker pull nginx > /dev/null 2>&1
                                                 fi
                                             done
                                         done
