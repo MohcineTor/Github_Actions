@@ -1,0 +1,54 @@
+name: Push Image from Azure Container Registry
+description: Push image from Azure Container Registry
+inputs:
+  simulator_image_docker_orlistofImage:
+    description: 'simulator_image_docker_dev'
+    required: true
+    default: ''
+  simulator_version_orlistofversion:
+    description: 'simulator_version_dev'
+    required: true
+    default: ''
+  platforms:
+    description: 'List of platforms to initialize'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Pull ACR simulator image
+      env:
+        logs: ${{ github.action_path }}/../logs/log.txt
+      run: |
+        IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
+        IFS=',' read -ra list_of_Image <<< "${{ inputs.simulator_image_docker_orlistofImage }}"
+        IFS=',' read -ra list_of_version <<< "${{ inputs.simulator_version_orlistofversion }}"
+        length_platforms=${#platforms_array[@]}
+        length_images=${#list_of_Image[@]}
+        length_versions=${#list_of_version[@]}
+        if [ $length_platforms -eq 1 ] && [ $length_images -eq 1 ] && [ $length_versions -eq 1 ]; then
+            echo "one platforme $platform"
+        else
+            for platform in "${platforms_array[@]}"; do
+                if [ "$platform" != "${{ env.PLATFORM_ID }}" ]; then
+                    repositories=()
+                    tags=()
+                    extract_repositories_and_tags() {
+                        while IFS= read -r line; do
+                            repository=$(echo "$line" | awk '{print $1}')
+                            tag=$(echo "$line" | awk '{print $2}')
+                            for image in "${list_of_Image[@]}"; do
+                                for verison in "${list_of_version[@]}"; do
+                                    cleaned_image=$(echo "$image" | sed 's/ *//g')
+                                    cleaned_version=$(echo "$verison" | sed 's/ *//g')
+                                    if [ "$repository:$tag" == "$cleaned_image:$cleaned_version" ]; then
+                                        echo "push images: $cleaned_image:$cleaned_version in $platform"
+                                    fi
+                                done
+                            done
+                        done < "$LOG_FILE"
+                    }
+                    extract_repositories_and_tags
+                fi
+            done
+        fi
+      shell: bash
