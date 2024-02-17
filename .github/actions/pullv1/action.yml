@@ -20,8 +20,8 @@ runs:
         logs: ${{ github.action_path }}/../logs/log.txt
       run: |
         IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
-        IFS=',' read -ra list_of_Image<<< "${{ inputs.simulator_image_docker_orlistofImage }}"
-        IFS=',' read -ra list_of_version<<< "${{ inputs.simulator_version_orlistofversion }}"
+        IFS=',' read -ra list_of_Image <<< "${{ inputs.simulator_image_docker_orlistofImage }}"
+        IFS=',' read -ra list_of_version <<< "${{ inputs.simulator_version_orlistofversion }}"
         length_platforms=${#platforms_array[@]}
         length_images=${#list_of_Image[@]}
         length_versions=${#list_of_version[@]}
@@ -44,7 +44,7 @@ runs:
                                             versions=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
                                             for v in "${list_of_version[@]}"; do
                                                 if [ "$v" == "$versions" ]; then
-                                                    echo "pull images: $Image:$v in $platform"
+                                                    echo "pull images: $repository:$versions in $platform"
                                                 fi
                                             done
                                         done
