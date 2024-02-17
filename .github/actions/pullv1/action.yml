@@ -38,24 +38,18 @@ runs:
                                 repository=$(echo "$line" | cut -d ":" -f 1 | sed 's/•//g' | tr -d '[:space:]')
                                 version_line=$(echo "$line" | cut -d ":" -f 2 | sed 's/^[[:space:]]*//' | sed "s/^\['//" | sed "s/^\']//")
                                 for Image in "${list_of_Image[@]}"; do
-                                    if [ "$Image" == "$repository" ]; then
+                                    cleaned_image=$(echo "$Image" | sed 's/ *//g')
+                                    if [ "$cleaned_image" == "$repository" ]; then
                                         IFS=', ' read -r -a version_array <<< "$version_line"
                                         for version in "${version_array[@]}"; do
                                             versions=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
                                             for v in "${list_of_version[@]}"; do
-                                                if [ "$v" == "$versions" ]; then
-                                                    echo "pull images: $repository:$versions in $platform"
-                                                    # Après avoir trouvé une correspondance, nous quittons la boucle interne.
-                                                    break
+                                                cleaned_version=$(echo "$v" | sed 's/ *//g')
+                                                if [ "$cleaned_version" == "$versions" ]; then
+                                                  echo "pull images: $cleaned_image:$v in $platform"
                                                 fi
                                             done
-                                            # Après avoir trouvé une correspondance, nous quittons la boucle intermédiaire.
-                                            if [ "$v" == "$versions" ]; then
-                                                break
-                                            fi
                                         done
-                                        # Après avoir trouvé une correspondance, nous quittons la boucle externe.
-                                        break
                                     fi
                                 done
                             fi
