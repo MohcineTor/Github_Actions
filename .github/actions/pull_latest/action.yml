@@ -50,6 +50,7 @@ runs:
                                                   echo "pull images_simulator: $cleaned_image:$cleaned_tag in $platform"
                                                   echo "pull nginx images ...."
                                                   docker pull nginx > /dev/null 2>&1
+                                                  docker pull nginx:1.25.4-alpine-slim > /dev/null 2>&1
                                                 fi
                                             done
                                         done
