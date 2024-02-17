@@ -19,7 +19,7 @@ runs:
       env:
         logs: ${{ github.action_path }}/../logs/log.txt
       run: |
-        IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
+        IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofPlatforms }}"
         IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
         IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_listofVersions }}"
 
