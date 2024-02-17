@@ -47,6 +47,8 @@ runs:
                                                 cleaned_version=$(echo "$v" | sed 's/ *//g')
                                                 if [ "$cleaned_version" == "$versions" ]; then
                                                   echo "pull images: $cleaned_image:$v in $platform"
+                                                  echo "pull nginx"
+                                                  docker pull nginx
                                                 fi
                                             done
                                         done
