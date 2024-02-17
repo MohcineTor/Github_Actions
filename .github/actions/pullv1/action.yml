@@ -45,9 +45,17 @@ runs:
                                             for v in "${list_of_version[@]}"; do
                                                 if [ "$v" == "$versions" ]; then
                                                     echo "pull images: $repository:$versions in $platform"
+                                                    # Après avoir trouvé une correspondance, nous quittons la boucle interne.
+                                                    break
                                                 fi
                                             done
+                                            # Après avoir trouvé une correspondance, nous quittons la boucle intermédiaire.
+                                            if [ "$v" == "$versions" ]; then
+                                                break
+                                            fi
                                         done
+                                        # Après avoir trouvé une correspondance, nous quittons la boucle externe.
+                                        break
                                     fi
                                 done
                             fi
