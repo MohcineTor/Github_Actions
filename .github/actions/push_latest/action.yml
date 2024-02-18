@@ -1,6 +1,9 @@
 name: Push Image to Azure Container Registry
 description: Push image to Azure Container Registry
 inputs:
+   platform_or_listofPlatforms:
+    description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
+    required: true
   simulator_image_docker_or_listofImages:
     description: 'User should input either a Docker image of the simulator or a list of images Ex:"simulator_simulator, asset_simulators ..."'
     required: true
@@ -9,9 +12,6 @@ inputs:
     description: 'User should input either the version of the simulator or a list of versions Ex:"ASSET_v14.2.1, ASSET_v15.0.1 ..."'
     required: true
     default: ''
-  platform_or_listofPlatforms:
-    description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
-    required: true
   tags_or_list_of_tags:
     description: 'User should input either a single tags or a list of tags Ex: "[ASSET_14.2.1], [ASSET_14.2.2], [ASSET_14.2.3]...."'
     required: true
@@ -49,6 +49,7 @@ runs:
                                     cleaned_image=$(echo "$image" | sed 's/ *//g')
                                     cleaned_version=$(echo "$verison" | sed 's/ *//g')
                                     if [ "$repository:$tag" == "$cleaned_image:$cleaned_version" ]; then
+                                        docker images
                                         echo "tag images: $repository:$tag  with --> $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
                                         echo "Push images_simulator in $cleaned_platform:-->  $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
                                         index=$((index + 1))

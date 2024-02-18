@@ -35,7 +35,8 @@ runs:
             babylon azure acr pull -c ${{ env.CONTEXT_ID }} -p $platforms_array --image ${{ inputs.simulator_image_docker_or_listofImages }}:${{ inputs.simulator_version_or_listofVersions }}
         else
             for platform in "${platforms_array[@]}"; do
-                if [ "$platform" == "${{ env.PLATFORM_ID }}" ]; then
+                cleaned_platform=$(echo "$platform" | sed 's/ *//g')
+                if [ "$cleaned_platform" == "${{ env.PLATFORM_ID }}" ]; then
                     babylon azure list -c ${{ env.CONTEXT_ID }} -p $platform > ${PWD}/babylon_acr_logs.txt
                     LOG_FILE="${PWD}/babylon_acr_logs.txt"
                     extract_repositories_and_versions() {
@@ -52,7 +53,7 @@ runs:
                                             for tag_user in "${list_of_version_simulator[@]}"; do
                                                 cleaned_tag=$(echo "$tag_user" | sed 's/ *//g')
                                                 if [ "$cleaned_tag" == "$tag_log" ]; then
-                                                  babylon azure acr pull -c ${{ env.CONTEXT_ID }} -p $platform --image $cleaned_image:$cleaned_tag
+                                                  babylon azure acr pull -c ${{ env.CONTEXT_ID }} -p $cleaned_platform --image $cleaned_image:$cleaned_tag
                                                 fi
                                             done
                                         done
