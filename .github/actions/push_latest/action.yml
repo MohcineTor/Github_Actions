@@ -49,10 +49,9 @@ runs:
                                     cleaned_version=$(echo "$verison" | sed 's/ *//g')
                                     if [ "$repository:$tag" == "$cleaned_image:$cleaned_version" ]; then
                                         docker images 
-                                        echo "tag images: $repository:$tag  with --> $repository:$(echo ${list_of_tags[$index]} | sed 's/\[\|\]//g' | sed 's/ //g')"
-                                        echo "Push images_simulator:-->  $repository:$(echo ${list_of_tags[$index]} | sed 's/\[\|\]//g' | sed 's/ //g')"
-                                        index=index+1
-                                        #((index++))
+                                        echo "tag images: $repository:$tag  with --> $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
+                                        echo "Push images_simulator:-->  $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
+                                        ((index++))
                                         echo "test"
                                     fi
                                 done
