@@ -49,8 +49,8 @@ runs:
                                                 if [ "$cleaned_tag" == "$tag_log" ]; then
                                                   echo "pull images_simulator: $cleaned_image:$cleaned_tag in $platform"
                                                   echo "pull nginx images ...."
-                                                  docker pull nginx:alpine3.18-slim > /dev/null 2>&1
-                                                  docker pull nginx:1.25.4-alpine-slim > /dev/null 2>&1
+                                                  docker pull nginx:alpine3.18-slim > /dev/null 
+                                                  docker pull nginx:1.25.4-alpine-slim > /dev/null 
                                                 fi
                                             done
                                         done
