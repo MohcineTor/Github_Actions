@@ -51,7 +51,8 @@ runs:
                                         docker images 
                                         echo "tag images: $repository:$tag  with --> $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
                                         echo "Push images_simulator:-->  $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
-                                        ((index++))
+                                        #((index++))
+                                        index=$((index + 1))
                                         echo "test"
                                     fi
                                 done
