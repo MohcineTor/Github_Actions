@@ -1,7 +1,7 @@
 name: Push Image to Azure Container Registry
 description: Push image to Azure Container Registry
 inputs:
-   platform_or_listofPlatforms:
+  platform_or_listofPlatforms:
     description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
     required: true
   simulator_image_docker_or_listofImages:
