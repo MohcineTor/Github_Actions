@@ -52,6 +52,7 @@ runs:
                                         echo "tag images: $repository:$tag  with --> $repository:$(echo ${list_of_tags[$index]} | sed 's/\[\|\]//g' | sed 's/ //g')"
                                         echo "Push images_simulator:-->  $repository:$(echo ${list_of_tags[$index]} | sed 's/\[\|\]//g' | sed 's/ //g')"
                                         ((index++))
+                                        echo "test"
                                     fi
                                 done
                             done
