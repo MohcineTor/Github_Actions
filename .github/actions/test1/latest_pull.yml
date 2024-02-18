@@ -5,70 +5,64 @@ inputs:
     description: 'Working-dir folder'
     required: true
     default: 'personal'
-  simulator_image_docker_or_listofImage:
-    description: 'simulator_image_docker_dev'
+  simulator_image_docker_or_listofImages:
+    description: 'User should input either a Docker image of the simulator or a list of images Ex:"simulator_simulator, asset_simulators ..."'
     required: true
     default: ''
-  simulator_version_or_listofversion:
-    description: 'simulator_version_dev'
+  simulator_version_or_listofVersions:
+    description: 'User should input either the version of the simulator or a list of versions Ex:"ASSET_v14.2.1, ASSET_v15.0.1 ..."'
     required: true
     default: ''
-  platform_or_listofplatforms:
-    description: 'List of platforms to initialize'
+  platform_or_listofPlatforms:
+    description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
     required: true
 runs:
   using: "composite"
   steps:
-    - name: Pull ACR simulator image
+    - name: Pull from ACR simulator image
       run: |
         cd ${{ inputs.folder }}
-        IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofplatforms }}"
-        IFS=',' read -ra list_of_Image <<< "${{ inputs.simulator_image_docker_orlistofImage }}"
-        IFS=',' read -ra list_of_version <<< "${{ inputs.simulator_version_orlistofversion }}"
         
-        length_platforms=${#platforms_array[@]}
-        length_images=${#list_of_Image[@]}
-        length_versions=${#list_of_version[@]}
+        IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofPlatforms }}"
+        IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
+        IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_listofVersions }}"
 
-        if [ $length_platforms -eq 1 ] && [ $length_images -eq 1 ] && [ $length_versions -eq 1 ];
-            babylon azure acr pull -c ${{ env.CONTEXT_ID }} -p $platform --image ${{ inputs.simulator_image_docker_orlistofImage }}:${{ inputs.simulator_version_orlistofversion }}
+        length_platforms=${#platforms_array[@]}
+        length_list_images_simulator=${#list_of_images_simulator[@]}
+        length_versions_simulator=${#list_of_version_simulator[@]}
+
+        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ]; then
+            babylon azure acr pull -c ${{ env.CONTEXT_ID }} -p $platforms_array --image ${{ inputs.simulator_image_docker_or_listofImages }}:${{ inputs.simulator_version_or_listofVersions }}
         else
             for platform in "${platforms_array[@]}"; do
                 if [ "$platform" == "${{ env.PLATFORM_ID }}" ]; then
-                    babylon azure list -c ${{ env.CONTEXT_ID }} -p $platform > ${PWD}/logs.txt
-                    LOG_FILE="${PWD}/logs.txt"
-                    repositories=()
-                    versions=()
+                    babylon azure list -c ${{ env.CONTEXT_ID }} -p $platform > ${PWD}/babylon_acr_logs.txt
+                    LOG_FILE="${PWD}/babylon_acr_logs.txt"
                     extract_repositories_and_versions() {
                         while IFS= read -r line; do
                             if [[ $line == *"•"* ]]; then
                                 repository=$(echo "$line" | cut -d ":" -f 1 | sed 's/•//g' | tr -d '[:space:]')
-                                version_line=$(echo "$line" | cut -d ":" -f 2 | sed 's/^[[:space:]]*//' | sed "s/^\['//" | sed "s/^\']//")
-                                IFS=', ' read -r -a version_array <<< "$version_line"
-                                # Parcourir chaque version et supprimer le ']' à la fin s'il existe
-                                for version in "${version_array[@]}"; do
-                                    version=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
-                                    versions+=("$version")
+                                tag=$(echo "$line" | cut -d ":" -f 2 | sed 's/^[[:space:]]*//' | sed "s/^\['//" | sed "s/^\']//")
+                                for image in "${list_of_images_simulator[@]}"; do
+                                    cleaned_image=$(echo "$image" | sed 's/ *//g')
+                                    if [ "$cleaned_image" == "$repository" ]; then
+                                        IFS=', ' read -r -a tag_array <<< "$tag"
+                                        for version in "${tag_array[@]}"; do
+                                            tag_log=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
+                                            for tag_user in "${list_of_version_simulator[@]}"; do
+                                                cleaned_tag=$(echo "$tag_user" | sed 's/ *//g')
+                                                if [ "$cleaned_tag" == "$tag_log" ]; then
+                                                  babylon azure acr pull -c ${{ env.CONTEXT_ID }} -p $platform --image $cleaned_image:$cleaned_tag
+                                                fi
+                                            done
+                                        done
+                                    fi
                                 done
-                                repositories+=("$repository")
                             fi
                         done < "$LOG_FILE"
                     }
                     extract_repositories_and_versions
-                    for i in "${repositories[@]}"; do
-                        for j in "${list_of_Image[@]}"; do
-                            if [ "$i" == "$j" ]; then
-                                for k in "${versions[@]}"; do
-                                    for l in "${list_of_version[@]}"; do
-                                        if [ "$k" == "$l" ]; then
-                                            babylon azure acr pull -c ${{ env.CONTEXT_ID }} -p $platform --image $i:$k
-                                        fi
-                                    done
-                                done
-                            fi
-                        done
-                    done
                 fi
             done
         fi
-      shell: bash
+     shell: bash

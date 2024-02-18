@@ -12,6 +12,9 @@ inputs:
   platform_or_listofPlatforms:
     description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
     required: true
+  tags_or_list_of_tags:
+    description: 'User should input either a single tags or a list of tags Ex: "[ASSET_14.2.1], [ASSET_14.2.2], [ASSET_14.2.3]...."'
+    required: true
 runs:
   using: "composite"
   steps:
@@ -20,14 +23,17 @@ runs:
         IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofPlatforms }}"
         IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
         IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_listofVersions }}"
+        IFS=',' read -ra list_of_tags <<< "${{ inputs.tags_or_list_of_tags }}"
 
         length_platforms=${#platforms_array[@]}
         length_list_images_simulator=${#list_of_images_simulator[@]}
         length_versions_simulator=${#list_of_version_simulator[@]}
+        length_tags=${#list_of_tags[@]}
 
-        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ]; then
+        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ] && [ $length_tags -eq 1 ]; then
             echo "Push images_simulator: $list_of_images_simulator:$list_of_version_simulator in $platforms_array"
         else
+            index=0
             for platform in "${platforms_array[@]}"; do
                 if [ "$platform" != "${{ env.PLATFORM_ID }}" ]; then
                     docker images > ${PWD}/docker_images_logs.txt
@@ -41,7 +47,10 @@ runs:
                                     cleaned_image=$(echo "$image" | sed 's/ *//g')
                                     cleaned_version=$(echo "$verison" | sed 's/ *//g')
                                     if [ "$repository:$tag" == "$cleaned_image:$cleaned_version" ]; then
-                                        echo "push images: $cleaned_image:$cleaned_version in $platform"
+                                        # echo "push images: $cleaned_image:$cleaned_version in $platform"
+                                        echo "tag images: $repository:$tag  with --> $repository:$(echo ${list_of_tags[$index]} | sed 's/\[\|\]//g' | sed 's/ //g')"
+                                        echo "Push images_simulator:-->  $repository:$(echo ${list_of_tags[$index]} | sed 's/\[\|\]//g' | sed 's/ //g')"
+                                        ((index++))
                                     fi
                                 done
                             done
@@ -52,3 +61,6 @@ runs:
             done
         fi
       shell: bash
+
+
+      

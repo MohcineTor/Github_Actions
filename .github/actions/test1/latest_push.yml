@@ -1,63 +1,59 @@
 name: Push Image from Azure Container Registry
 description: push image from Azure Container Registry
 inputs:
-  simulator_image_docker_orlistofImage:
-    description: 'simulator_image_docker_dev'
+  folder:
+    description: 'Working-dir folder'
+    required: true
+    default: 'personal'
+  simulator_image_docker_or_listofImages:
+    description: 'User should input either a Docker image of the simulator or a list of images Ex:"simulator_simulator, asset_simulators ..."'
     required: true
     default: ''
-  simulator_version_orlistofversion:
-    description: 'simulator_version_dev'
+  simulator_version_or_listofVersions:
+    description: 'User should input either the version of the simulator or a list of versions Ex:"ASSET_v14.2.1, ASSET_v15.0.1 ..."'
     required: true
     default: ''
-  platforms:
-    description: 'List of platforms to initialize'
+  platform_or_listofPlatforms:
+    description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
     required: true
 runs:
   using: "composite"
   steps:
     - name: push ACR simulator image
-      env:
-        logs: ${{ github.action_path }}/../logs/dockerlogs.txt
       run: |
-        IFS=',' read -ra platforms_array <<< "${{ inputs.platforms }}"
-        IFS=',' read -ra list_of_Image<<< "${{ inputs.simulator_image_docker_orlistofImage }}"
-        IFS=',' read -ra list_of_version<<< "${{ inputs.simulator_version_orlistofversion }}"
+        cd ${{ inputs.folder }}
+
+        IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofPlatforms }}"
+        IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
+        IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_listofVersions }}"
+
         length_platforms=${#platforms_array[@]}
-        length_images=${#list_of_Image[@]}
-        length_versions=${#list_of_version[@]}
-        if [ $length_platforms -eq 1 ] && [ $length_images -eq 1 ] && [ $length_versions -eq 1 ]; then
-            echo "push to one platforme $platform"
+        length_list_images_simulator=${#list_of_images_simulator[@]}
+        length_versions_simulator=${#list_of_version_simulator[@]}
+
+        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ]; then
+            babylon azure acr push -c ${{ env.CONTEXT_ID }} -p $platforms_array --image ${{ inputs.simulator_image_docker_or_listofImages }}:${{ inputs.simulator_version_or_listofVersions }}
         else
             for platform in "${platforms_array[@]}"; do
                 if [ "$platform" != "${{ env.PLATFORM_ID }}" ]; then
-                    docker images > ${PWD}/dockerimageslogs.txt
-                    LOG_FILE=${PWD}/dockerimageslogs.txt
-                    repositories=()
-                    tags=()
+                    docker images > ${PWD}/docker_images_logs.txt
+                    LOG_FILE=${PWD}/docker_images_logs.txt
                     extract_repositories_and_tags() {
                         while IFS= read -r line; do
                             repository=$(echo "$line" | awk '{print $1}')
                             tag=$(echo "$line" | awk '{print $2}')
-                            if ! [[ " ${repositories[@]} " =~ " $repository " ]]; then
-                                repositories+=("$repository")
-                            fi
-                            tags+=("$tag")
+                            for image in "${list_of_images_simulator[@]}"; do
+                                for verison in "${list_of_version_simulator[@]}"; do
+                                    cleaned_image=$(echo "$image" | sed 's/ *//g')
+                                    cleaned_version=$(echo "$verison" | sed 's/ *//g')
+                                    if [ "$repository:$tag" == "$cleaned_image:$cleaned_version" ]; then
+                                        babylon azure acr pull -c ${{ env.CONTEXT_ID }} -p $platform --image $cleaned_image:$cleaned_version
+                                    fi
+                                done
+                            done
                         done < "$LOG_FILE"
                     }
                     extract_repositories_and_tags
-                    for i in "${repositories[@]}"; do
-                        for j in "${list_of_Image[@]}"; do
-                            if [ "$i" == "$j" ]; then
-                                for k in "${tags[@]}"; do
-                                    for l in "${list_of_version[@]}"; do
-                                        if [ "$k" == "$l" ]; then
-                                            babylon azure acr push -c ${{ env.CONTEXT_ID }} -p $platform --image $i:$k
-                                        fi
-                                    done
-                                done
-                            fi
-                        done
-                    done
                 fi
             done
         fi
