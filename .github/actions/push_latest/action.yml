@@ -47,7 +47,6 @@ runs:
                                     cleaned_image=$(echo "$image" | sed 's/ *//g')
                                     cleaned_version=$(echo "$verison" | sed 's/ *//g')
                                     if [ "$repository:$tag" == "$cleaned_image:$cleaned_version" ]; then
-                                        # echo "push images: $cleaned_image:$cleaned_version in $platform"
                                         echo "tag images: $repository:$tag  with --> $repository:$(echo ${list_of_tags[$index]} | sed 's/\[\|\]//g' | sed 's/ //g')"
                                         echo "Push images_simulator:-->  $repository:$(echo ${list_of_tags[$index]} | sed 's/\[\|\]//g' | sed 's/ //g')"
                                         ((index++))
