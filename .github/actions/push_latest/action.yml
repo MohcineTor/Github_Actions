@@ -4,6 +4,7 @@ inputs:
   platform_or_listofPlatforms:
     description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
     required: true
+    default: ''
   simulator_image_docker_or_listofImages:
     description: 'User should input either a Docker image of the simulator or a list of images Ex:"simulator_simulator, asset_simulators ..."'
     required: true
