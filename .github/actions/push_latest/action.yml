@@ -36,7 +36,8 @@ runs:
         else
             index=0
             for platform in "${platforms_array[@]}"; do
-                if [ "$platform" != "${{ env.PLATFORM_ID }}" ]; then
+                cleaned_platform=$(echo "$platform" | sed 's/ *//g')
+                if [ "$cleaned_platform" != "${{ env.PLATFORM_ID }}" ]; then
                     docker images > ${PWD}/docker_images_logs.txt
                     LOG_FILE=${PWD}/docker_images_logs.txt
                     extract_repositories_and_tags() {
@@ -49,7 +50,7 @@ runs:
                                     cleaned_version=$(echo "$verison" | sed 's/ *//g')
                                     if [ "$repository:$tag" == "$cleaned_image:$cleaned_version" ]; then
                                         echo "tag images: $repository:$tag  with --> $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
-                                        echo "Push images_simulator:-->  $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
+                                        echo "Push images_simulator in $cleaned_platform:-->  $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
                                         index=$((index + 1))
                                     fi
                                 done
