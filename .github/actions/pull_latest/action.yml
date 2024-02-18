@@ -49,8 +49,9 @@ runs:
                                                 if [ "$cleaned_tag" == "$tag_log" ]; then
                                                   echo "pull images_simulator: $cleaned_image:$cleaned_tag in $platform"
                                                   echo "pull nginx images ...."
-                                                  docker pull redis:7.0.15-alpine
-                                                  docker pull nginx:1.25.4-alpine-slim  
+                                                  docker pull redis:7.0.15-alpine > /dev/null 2>&1
+                                                  docker pull redis:7.2.4 > /dev/null 2>&1
+                                                  docker pull nginx:1.25.4-alpine-slim  > /dev/null 2>&1
                                                 fi
                                             done
                                         done
