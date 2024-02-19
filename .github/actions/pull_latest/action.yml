@@ -57,7 +57,7 @@ runs:
                                                 cleaned_version=$(echo "$version_user" | sed 's/ *//g')
                                                 if [ "$cleaned_version" == "$version_log" ]; then
                                                   echo "pull images: $cleaned_image:$cleaned_version in $platform"
-                                                  docker pull $cleaned_image:$cleaned > /dev/null 2>&1
+                                                  docker pull $cleaned_image:$cleaned_version > /dev/null 2>&1
                                                   echo "tag images: $cleaned_image:$cleaned_version  with --> $cleaned_image:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
                                                   docker tag $cleaned_image:$cleaned_version $cleaned_image:$(echo ${list_of_tags[$index]} | sed 's/ //g')
                                                 fi
