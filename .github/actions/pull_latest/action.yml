@@ -26,12 +26,14 @@ runs:
         IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofPlatforms }}"
         IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
         IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_listofVersions }}"
+        IFS=',' read -ra list_of_tags <<< "${{ inputs.tags_or_list_of_tags }}"
 
         length_platforms=${#platforms_array[@]}
         length_list_images_simulator=${#list_of_images_simulator[@]}
         length_versions_simulator=${#list_of_version_simulator[@]}
+        length_tags=${#list_of_tags[@]}
 
-        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ]; then
+        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ] && [ $length_tags -eq 1 ]; then
             echo "pull images_simulator: $list_of_images_simulator:$list_of_version_simulator in $platforms_array"
         else
             for platform in "${platforms_array[@]}"; do
