@@ -13,10 +13,10 @@ inputs:
     description: 'User should input either the version of the simulator or a list of versions Ex:"ASSET_v14.2.1, ASSET_v15.0.1 ..."'
     required: true
     default: ''
-  tags_or_list_of_tags:
-    description: 'User should input either a single tags or a list of tags Ex: "[ASSET_14.2.1], [ASSET_14.2.2], [ASSET_14.2.3]...."'
-    required: true
-    default: ''
+  # tags_or_list_of_tags:
+  #   description: 'User should input either a single tags or a list of tags Ex: "[ASSET_14.2.1], [ASSET_14.2.2], [ASSET_14.2.3]...."'
+  #   required: true
+  #   default: ''
 runs:
   using: "composite"
   steps:
