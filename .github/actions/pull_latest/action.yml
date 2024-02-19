@@ -1,17 +1,21 @@
 name: Pull Image from Azure Container Registry
 description: Pull image from Azure Container Registry
 inputs:
-  simulator_image_docker_or_listofImages:
+  platform_or_list_of_Platforms:
+    description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
+    required: true
+  simulator_image_docker_or_list_of_Images:
     description: 'User should input either a Docker image of the simulator or a list of images Ex:"simulator_simulator, asset_simulators ..."'
     required: true
     default: ''
-  simulator_version_or_listofVersions:
+  simulator_version_or_list_of_Versions:
     description: 'User should input either the version of the simulator or a list of versions Ex:"ASSET_v14.2.1, ASSET_v15.0.1 ..."'
     required: true
     default: ''
-  platform_or_listofPlatforms:
-    description: 'User should input either a single platform or a list of platforms to initialize Ex: "dev, perf, staging ...."'
+  tag_or_list_of_tags:
+    description: 'User should input either the tag of the simulator image or a list of tags Ex:"ASSET_v14.2.1, ASSET_v15.0.1 ..."'
     required: true
+    default: ''
 runs:
   using: "composite"
   steps:
@@ -19,16 +23,19 @@ runs:
       env:
         logs: ${{ github.workspace }}/logs/log.txt
       run: |
-        IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofPlatforms }}"
-        IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
-        IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_listofVersions }}"
+        IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_list_of_Platforms }}"
+        IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_list_of_Images }}"
+        IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_list_of_Versions }}"
+        IFS=',' read -ra list_of_tags <<< "${{ inputs.tag_or_list_of_tags }}"
+
 
         length_platforms=${#platforms_array[@]}
         length_list_images_simulator=${#list_of_images_simulator[@]}
         length_versions_simulator=${#list_of_version_simulator[@]}
+        length_tags=${#list_of_tags[@]}
 
-        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ]; then
-            echo "pull images_simulator: $list_of_images_simulator:$list_of_version_simulator in $platforms_array"
+        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_versions_simulator -eq 1 ] && [ $length_tags -eq 1 ]; then
+            echo "pull images_simulator: $list_of_images_simulator:$list_of_version_simulator in platform : $platforms_array"
         else
             for platform in "${platforms_array[@]}"; do
                 cleaned_platform=$(echo "$platform" | sed 's/ *//g')
@@ -38,22 +45,23 @@ runs:
                         while IFS= read -r line; do
                             if [[ $line == *"•"* ]]; then
                                 repository=$(echo "$line" | cut -d ":" -f 1 | sed 's/•//g' | tr -d '[:space:]')
-                                tag=$(echo "$line" | cut -d ":" -f 2 | sed 's/^[[:space:]]*//' | sed "s/^\['//" | sed "s/^\']//")
+                                version_line=$(echo "$line" | cut -d ":" -f 2 | sed 's/^[[:space:]]*//' | sed "s/^\['//" | sed "s/^\']//")
                                 for image in "${list_of_images_simulator[@]}"; do
                                     cleaned_image=$(echo "$image" | sed 's/ *//g')
                                     if [ "$cleaned_image" == "$repository" ]; then
-                                        IFS=', ' read -r -a tag_array <<< "$tag"
-                                        for version in "${tag_array[@]}"; do
-                                            tag_log=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
-                                            for tag_user in "${list_of_version_simulator[@]}"; do
-                                                cleaned_tag=$(echo "$tag_user" | sed 's/ *//g')
-                                                if [ "$cleaned_tag" == "$tag_log" ]; then
-                                                  echo "pull images_simulator: $cleaned_image:$cleaned_tag in $platform"
-                                                  echo "pull nginx images ...."
-                                                  docker pull redis:7.0.15-alpine > /dev/null 2>&1
-                                                  docker pull redis:7.2.4 > /dev/null 2>&1
-                                                  docker pull nginx:1.25.4-alpine-slim  > /dev/null 2>&1
+                                        IFS=', ' read -r -a version_array <<< "$version_line"
+                                        for version in "${version_array[@]}"; do
+                                            version_log=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
+                                            index=0
+                                            for version_user in "${list_of_version_simulator[@]}"; do
+                                                cleaned_version=$(echo "$version_user" | sed 's/ *//g')
+                                                if [ "$cleaned_version" == "$version_log" ]; then
+                                                  echo "pull images: $cleaned_image:$cleaned_version in $platform"
+                                                  docker pull $cleaned_image:$cleaned > /dev/null 2>&1
+                                                  echo "tag images: $cleaned_image:$cleaned_version  with --> $cleaned_image:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
+                                                  docker tag $cleaned_image:$cleaned_version $cleaned_image:$(echo ${list_of_tags[$index]} | sed 's/ //g')
                                                 fi
+                                                index=$((index + 1))
                                             done
                                         done
                                     fi
