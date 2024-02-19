@@ -19,9 +19,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Checkout de la repo externe
+      uses: actions/checkout@v2
+      with:
+        repository: MohcineTor/Test_Github_Action # Remplacez ceci par le nom de l'utilisateur et le nom de la repo où se trouve le fichier log.txt
+        ref: main # Remplacez ceci par la branche que vous voulez cloner
     - name: Pull from ACR simulator image
       env:
-        logs: ${{ github.action_path }}/logs/log.txt
+        logs: ${{ github.workspace }}/log.txt
       run: |
         IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofPlatforms }}"
         IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
