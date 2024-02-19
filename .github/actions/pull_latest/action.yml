@@ -27,7 +27,7 @@ runs:
 
     - name: Pull from ACR simulator image
       env:
-        logs: ${{ github.action_path }}/../logs/log.txt
+        logs: ${{ github.workspace }}/log.txt
       run: |
         echo ${{ github.action_path }}
         echo ${{ github.workspace }}
