@@ -30,9 +30,9 @@ runs:
         logs: ${{ github.action_path }}/../logs/log.txt
       run: |
         echo ${{ github.action_path }}
-        echo ${{ github_workspace }}
-        echo ${{ github_action_repository }}
-        echo ${{ github_path }}
+        echo ${{ github.workspace }}
+        echo ${{ github.action_repository }}
+        echo ${{ github.path }}
         IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofPlatforms }}"
         IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
         IFS=',' read -ra list_of_version_simulator <<< "${{ inputs.simulator_version_or_listofVersions }}"
