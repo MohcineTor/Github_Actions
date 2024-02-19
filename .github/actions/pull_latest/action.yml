@@ -27,7 +27,7 @@ runs:
 
     - name: Pull from ACR simulator image
       env:
-        logs: ${{ github.repository }}/../../log.txt
+        logs: ${{ github.repository }}/../log.txt
       run: |
         echo ${{ github.repository }}
         echo ${{ github.repository_owner }}
