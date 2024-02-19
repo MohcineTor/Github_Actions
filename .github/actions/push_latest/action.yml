@@ -43,8 +43,8 @@ runs:
                                     cleaned_image=$(echo "$image" | sed 's/ *//g')
                                     cleaned_version=$(echo "$verison" | sed 's/ *//g')
                                     if [ "$repository:$tag" == "$cleaned_image:$cleaned_version" ]; then
-                                        #echo "tag images: $repository:$tag  with --> $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')"
-                                        echo "Push images_taged: --> $repository:$tag in plaftorm $cleaned_platform:--> "
+                                        docker images 
+                                        echo "Push images_taged: --> $repository:$tag in plaftorm $cleaned_platform"
                                     fi
                                 done
                             done
