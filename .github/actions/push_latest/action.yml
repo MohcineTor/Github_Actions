@@ -27,7 +27,7 @@ runs:
         length_tags=${#list_of_tags[@]}
 
         if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_tags -eq 1 ]; then
-            echo "Push images_simulator: $list_of_images_simulator:$list_of_version_simulator in platform : $platforms_array"
+                echo "Push images_simulator: $list_of_images_simulator:$list_of_tags in platform : $platforms_array"
         else
             for platform in "${platforms_array[@]}"; do
                 cleaned_platform=$(echo "$platform" | sed 's/ *//g')
