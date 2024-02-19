@@ -45,15 +45,17 @@ runs:
                                         IFS=', ' read -r -a tag_array <<< "$tag"
                                         for version in "${tag_array[@]}"; do
                                             tag_log=$(echo "$version" | sed 's/[]]//' | sed "s/^'//" | sed "s/'$//")
+                                            i=0
                                             for tag_user in "${list_of_version_simulator[@]}"; do
                                                 cleaned_tag=$(echo "$tag_user" | sed 's/ *//g')
+                                                index=$i
                                                 if [ "$cleaned_tag" == "$tag_log" ]; then
                                                   echo "pull images_simulator: $cleaned_image:$cleaned_tag in $cleaned_platform"
                                                   echo "pull nginx images ...."
-                                                  docker pull redis:7.0.15-alpine > /dev/null 2>&1
-                                                  docker pull redis:7.2.4 > /dev/null 2>&1
-                                                  docker pull nginx:1.25.4-alpine-slim  > /dev/null 2>&1
+                                                  docker pull cleaned_image:cleaned_tag > /dev/null 2>&1
+                                                  docker tag cleaned_image:cleaned_tag $repository:$(echo ${list_of_tags[$index]} | sed 's/ //g')
                                                 fi
+                                                i=$((i + 1))
                                             done
                                         done
                                     fi
