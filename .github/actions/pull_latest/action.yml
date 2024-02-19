@@ -32,7 +32,7 @@ runs:
         echo ${{ github.repository }}
         echo ${{ github.repository_owner }}
         echo ${{ github.action_path }}
-        # echo ${{ github.workspace }}
+        echo ${{ github.workspace }}
         # echo ${{ github.action_repository }}
         echo ${{ github.workflow_ref }}
 
