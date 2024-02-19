@@ -22,8 +22,8 @@ runs:
     - name: Checkout de la repo externe
       uses: actions/checkout@v2
       with:
-        repository: MohcineTor/Test_Github_Action # Remplacez ceci par le nom de l'utilisateur et le nom de la repo où se trouve le fichier log.txt
-        ref: main # Remplacez ceci par la branche que vous voulez cloner
+        repository: MohcineTor/Test_Github_Action 
+        ref: main 
     - name: Pull from ACR simulator image
       env:
         logs: ${{ github.workspace }}/log.txt
