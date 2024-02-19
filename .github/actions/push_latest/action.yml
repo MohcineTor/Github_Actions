@@ -38,6 +38,8 @@ runs:
                         while IFS= read -r line; do
                             repository=$(echo "$line" | awk '{print $1}')
                             tag=$(echo "$line" | awk '{print $2}')
+                            echo $repository
+                            echo $tag
                             for image in "${list_of_images_simulator[@]}"; do
                                 for verison in "${list_of_tags[@]}"; do
                                     cleaned_image=$(echo "$image" | sed 's/ *//g')
