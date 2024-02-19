@@ -27,7 +27,7 @@ runs:
 
     - name: Pull from ACR simulator image
       env:
-        logs: ${{ github_env }}/log.txt
+        logs: ${{  github_workflow_ref }}/../../log.txt
       run: |
         IFS=',' read -ra platforms_array <<< "${{ inputs.platform_or_listofPlatforms }}"
         IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_listofImages }}"
