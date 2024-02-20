@@ -22,12 +22,14 @@ runs:
         IFS=',' read -ra list_of_images_simulator <<< "${{ inputs.simulator_image_docker_or_list_of_Images }}"
         IFS=',' read -ra list_of_tags <<< "${{ inputs.tag_or_list_of_tags }}"
 
-        length_platforms=${#platforms_array[@]}
+        #length_platforms=${#platforms_array[@]}
         length_list_images_simulator=${#list_of_images_simulator[@]}
         length_tags=${#list_of_tags[@]}
 
-        if [ $length_platforms -eq 1 ] && [ $length_list_images_simulator -eq 1 ] && [ $length_tags -eq 1 ]; then
-                echo "Push images_simulator: $list_of_images_simulator:$list_of_tags in platform : $platforms_array"
+        if [ $length_list_images_simulator -eq 1 ] && [ $length_tags -eq 1 ]; then
+            for platform in "${platforms_array[@]}"; do
+                cleaned_platform=$(echo "$platform" | sed 's/ *//g')
+                echo "Push images_simulator: $list_of_images_simulator:$list_of_tags in platform : $cleaned_platform"
         else
             for platform in "${platforms_array[@]}"; do
                 cleaned_platform=$(echo "$platform" | sed 's/ *//g')

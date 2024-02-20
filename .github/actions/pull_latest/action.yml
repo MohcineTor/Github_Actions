@@ -43,6 +43,7 @@ runs:
             for platform in "${platforms_array[@]}"; do
                 cleaned_platform=$(echo "$platform" | sed 's/ *//g')
                 if [ "$cleaned_platform" == "${{ env.PLATFORM_ID }}" ]; then
+                    # babylon azure list -c ${{ env.CONTEXT_ID }} -p $platform > ${PWD}/babylon_acr_logs.txt
                     LOG_FILE=$logs
                     extract_repositories_and_versions() {
                         while IFS= read -r line; do
