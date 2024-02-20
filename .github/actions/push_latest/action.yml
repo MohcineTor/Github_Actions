@@ -30,6 +30,7 @@ runs:
             for platform in "${platforms_array[@]}"; do
                 cleaned_platform=$(echo "$platform" | sed 's/ *//g')
                 echo "Push images_simulator: $list_of_images_simulator:$list_of_tags in platform : $cleaned_platform"
+            done
         else
             for platform in "${platforms_array[@]}"; do
                 cleaned_platform=$(echo "$platform" | sed 's/ *//g')
