@@ -13,6 +13,8 @@ inputs:
     description: 'User should input either a single tags or a list of tags Ex: "[ASSET_14.2.1], [ASSET_14.2.2], [ASSET_14.2.3]...."'
     required: true
     default: ''
+env:
+  PLATFORMS: ${{ toJson(split(inputs.platform_or_list_of_Platforms, ',')) }}
 runs:
   using: "composite"
   steps:
@@ -56,6 +58,15 @@ runs:
                 fi
             done
         fi
+      shell: bash
+      - name: Push to ACR simulator image
+        run: |
+            for platform in "${PLATFORMS[@]}"; do
+              cleaned_platform=$(echo "$platform" | sed 's/ *//g')
+              if [ "$cleaned_platform" == "${{ env.PLATFORM_ID }}" ]; then
+                echo $cleaned_platform
+              fi
+            done   
       shell: bash
 
 
